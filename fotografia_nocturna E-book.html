@@ -247,6 +247,21 @@ body::before{
 .mute-btn.muted{
   background:rgba(201,168,76,.06);opacity:.5;
 }
+.audio-play-btn{
+  position:fixed;bottom:28px;right:90px;z-index:100;
+  width:50px;height:50px;border-radius:50%;
+  background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.35);
+  color:var(--gold-l);font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .3s;
+}
+.audio-play-btn:hover{
+  background:rgba(201,168,76,.28);border-color:var(--gold);
+  transform:scale(1.1);
+}
+.audio-play-btn.hidden{
+  display:none;
+}
 @media(max-width:680px){
   .photo-pg{grid-template-columns:1fr}
   .ph-img{min-height:220px;position:relative}
@@ -263,12 +278,15 @@ body::before{
     <i class="fa-solid fa-star" aria-hidden="true"></i>
   </div>
 
-  <audio id="bgAudio" autoplay loop>
+  <audio id="bgAudio" autoplay loop playsinline>
     <source src="Ambient Piano & Strings.mp3" type="audio/mpeg">
   </audio>
   
   <button class="mute-btn" id="muteBtn" aria-label="Silenciar música">
     <i class="fa-solid fa-volume-high"></i>
+  </button>
+  <button class="audio-play-btn hidden" id="playBtn" aria-label="Reproducir música">
+    <i class="fa-solid fa-play"></i>
   </button>
 
   <div class="book-scene">
@@ -527,7 +545,7 @@ body::before{
             <div class="credit-row">
               <i class="fa-solid fa-chalkboard-user"></i>
               <div>
-                <div class="credit-name">Docente de Fotografía</div>
+                <div class="credit-name">Docente de Fotografía - Dina luz</div>
                 <div class="credit-role">Por la guía técnica y el acompañamiento en el proceso creativo</div>
               </div>
             </div>
@@ -545,13 +563,7 @@ body::before{
                 <div class="credit-role">Por su apoyo, ideas y presencia en las sesiones nocturnas</div>
               </div>
             </div>
-            <div class="credit-row">
-              <i class="fa-solid fa-house-heart"></i>
-              <div>
-                <div class="credit-name">Nuestras familias</div>
-                <div class="credit-role">Por el apoyo incondicional y la comprensión durante el proyecto</div>
-              </div>
-            </div>
+            
           </div>
           <p class="footer-note">Fotografía Nocturna · Lic. Informática · 2026</p>
         </div>
@@ -684,10 +696,44 @@ lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
 /* ── Audio Control ── */
 const bgAudio = document.getElementById('bgAudio');
 const muteBtn = document.getElementById('muteBtn');
+const playBtn = document.getElementById('playBtn');
 
 bgAudio.volume = 0.4; // 40% volumen
 
 let isMuted = false;
+let audioStarted = false;
+
+function showPlayButton() {
+  playBtn.classList.remove('hidden');
+  muteBtn.classList.add('hidden');
+}
+
+function hidePlayButton() {
+  playBtn.classList.add('hidden');
+  muteBtn.classList.remove('hidden');
+}
+
+function startAudio() {
+  bgAudio.play().then(() => {
+    audioStarted = true;
+    hidePlayButton();
+  }).catch(() => {
+    showPlayButton();
+  });
+}
+
+startAudio();
+
+document.addEventListener('click', () => {
+  if (!audioStarted) {
+    startAudio();
+  }
+}, { once: true });
+
+playBtn.addEventListener('click', () => {
+  startAudio();
+});
+
 muteBtn.addEventListener('click', () => {
   isMuted = !isMuted;
   bgAudio.muted = isMuted;
